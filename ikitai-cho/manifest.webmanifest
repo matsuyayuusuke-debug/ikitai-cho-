@@ -1,0 +1,16 @@
+{
+  "name": "いきたい帖",
+  "short_name": "いきたい帖",
+  "description": "日本地図から都道府県ごとに、写真付きで行きたい場所を保存するアプリ",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EEF2EC",
+  "theme_color": "#2E7D4F",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

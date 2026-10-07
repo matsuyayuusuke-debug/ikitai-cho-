@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>いきたい帖</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2E7D4F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="いきたい帖">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  --ground:#EEF2EC;
+  --paper:#FFFFFF;
+  --paper-2:#F6F8F4;
+  --ink:#1D2A23;
+  --ink-2:#56645B;
+  --ink-3:#8E9A92;
+  --line:#D6DED7;
+  --pine:#2E7D4F;
+  --pine-deep:#1F5C3A;
+  --pine-soft:#DCEBDF;
+  --on-pine:#FFFFFF;
+  --shadow:0 1px 2px rgba(20,40,28,.06),0 6px 20px rgba(20,40,28,.08);
+  --r-hokkaido:#3E8FE0;
+  --r-kanto:#F0A631;
+  --r-chubu:#79C267;
+  --r-kinki:#E2562C;
+  --r-chushikoku:#F2D93B;
+  --r-kyushu:#D63480;
+  --muted-mix:58%;
+  --display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans",system-ui,sans-serif;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#121A15;--paper:#1A241E;--paper-2:#1F2B24;--ink:#E7EFE9;--ink-2:#A9B7AE;--ink-3:#728077;
+    --line:#2D3B33;--pine:#5DBB82;--pine-deep:#8FD6A9;--pine-soft:#223A2B;--on-pine:#0E1712;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);--muted-mix:40%;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#121A15;--paper:#1A241E;--paper-2:#1F2B24;--ink:#E7EFE9;--ink-2:#A9B7AE;--ink-3:#728077;
+  --line:#2D3B33;--pine:#5DBB82;--pine-deep:#8FD6A9;--pine-soft:#223A2B;--on-pine:#0E1712;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);--muted-mix:40%;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6;padding-inline:max(16px,env(safe-area-inset-left,0px));padding-block:calc(12px + env(safe-area-inset-top,0px)) calc(96px + env(safe-area-inset-bottom,0px))}
+img{max-width:100%}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--pine);outline-offset:2px;border-radius:8px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+
+/* top bar */
+.bar{display:flex;align-items:center;gap:12px;min-height:44px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:.04em;color:var(--pine-deep);background:none;border:0;padding:0}
+.brand .seal{width:34px;height:34px;border-radius:50%;border:3px solid var(--pine);display:grid;place-items:center;font-size:14px;color:var(--pine)}
+.bar .sp{flex:1}
+.back{display:inline-flex;align-items:center;gap:4px;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 14px 6px 10px;font-weight:700;font-size:14px;color:var(--ink-2)}
+.crumbs{font-size:13px;color:var(--ink-3);display:flex;gap:6px;flex-wrap:wrap}
+.crumbs button{background:none;border:0;padding:0;color:var(--pine);font-weight:700}
+
+/* panel */
+.panel{background:var(--paper);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+.panel.framed{border:6px solid var(--pine)}
+.dots{background-color:var(--paper);background-image:radial-gradient(var(--line) 1px,transparent 1.2px);background-size:9px 9px}
+
+/* home hero */
+.hero{padding:18px 16px 16px;display:flex;flex-direction:column;gap:14px}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.prompt{font-family:var(--display);font-weight:700;color:var(--pine);font-size:15px;display:flex;align-items:center;gap:10px}
+.prompt::before,.prompt::after{content:"";width:22px;height:2px;background:var(--pine);border-radius:2px}
+.prompt::before{transform:rotate(40deg)}.prompt::after{transform:rotate(-40deg)}
+.stats{display:flex;gap:6px;flex-wrap:wrap}
+.stat{white-space:nowrap;background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:4px 10px;display:flex;align-items:baseline;gap:6px;font-size:12px;color:var(--ink-2)}
+.stat b{font-family:var(--display);font-size:20px;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* map */
+.map{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));grid-template-rows:repeat(13,auto);gap:3px;position:relative}
+.map .cell{aspect-ratio:1;min-width:0}
+.tile{border:0;padding:0;aspect-ratio:1;border-radius:4px;position:relative;
+  background:color-mix(in srgb,var(--c) var(--muted-mix),var(--paper));transition:transform .15s ease,filter .15s}
+.tile.has{background:var(--c)}
+.tile.tall{aspect-ratio:auto}
+.tile.wide{aspect-ratio:auto}
+.tile:hover{transform:translateY(-2px);filter:brightness(1.05);z-index:2}
+.tile .n{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-weight:900;font-size:clamp(9px,2.2vw,13px);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.tile .nm{position:absolute;left:2px;top:1px;font-size:clamp(7px,1.6vw,10px);font-weight:700;color:rgba(0,0,0,.55);line-height:1;pointer-events:none}
+.tile.has .nm{color:rgba(255,255,255,.85)}
+.rlabel{z-index:3;max-width:none;line-height:1.4;align-self:center;justify-self:center;white-space:nowrap;border:3px solid var(--pine);background:var(--paper);color:var(--pine-deep);
+  font-family:var(--display);font-weight:900;font-size:clamp(12px,3.2vw,19px);border-radius:10px;padding:2px 10px;box-shadow:0 3px 0 var(--pine);
+  transition:transform .12s}
+.rlabel:hover{transform:translateY(-2px)}
+.rlabel:active{transform:translateY(2px);box-shadow:0 1px 0 var(--pine)}
+
+/* search */
+.search{display:flex;gap:10px}
+.search input{flex:1;min-width:0;border:3px solid var(--pine);border-radius:6px;background:var(--paper);padding:10px 14px;font-weight:500;font-size:16px}
+.search input::placeholder{color:var(--ink-3);font-weight:700}
+.btn{border:0;border-radius:12px;padding:10px 18px;font-weight:700;background:var(--pine);color:var(--on-pine);box-shadow:0 3px 0 var(--pine-deep);display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--pine-deep)}
+.btn.ghost{background:var(--paper);color:var(--ink-2);border:1.5px solid var(--line);box-shadow:none}
+.btn.danger{background:#C8402A;color:#fff;box-shadow:0 3px 0 #8E2A1B}
+.btn[disabled]{opacity:.5;pointer-events:none}
+
+/* section head */
+.pill-head{display:flex;justify-content:center;position:relative;margin-block:6px 2px}
+.pill-head::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:var(--pine);opacity:.35}
+.pill-head span{position:relative;background:var(--pine);color:var(--on-pine);font-family:var(--display);font-weight:900;font-size:18px;padding:6px 26px;border-radius:999px;display:flex;align-items:center;gap:12px;letter-spacing:.06em}
+.ball{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;position:relative;flex:none}
+.ball::before{content:"";position:absolute;left:-1px;right:-1px;top:50%;height:2.5px;margin-top:-1.25px;background:currentColor}
+.ball::after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;border:2.5px solid currentColor;background:inherit;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--pine)}
+
+/* recent strip */
+.strip{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x mandatory}
+.strip .sc{flex:0 0 150px;scroll-snap-align:start;background:none;border:0;padding:0;text-align:left;display:flex;flex-direction:column;gap:6px}
+.strip .sc .ph{width:150px;aspect-ratio:1;border-radius:50%;border:5px solid var(--c);box-shadow:inset 0 0 0 2px rgba(0,0,0,.1)}
+.strip .sc .t{font-weight:700;font-size:13px;line-height:1.35;padding-inline:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.strip .sc .p{font-size:11px;color:var(--ink-3);padding-inline:6px}
+
+/* photos */
+.ph{background:var(--c,var(--pine-soft)) center/cover no-repeat;position:relative;overflow:hidden}
+.ph.empty{background:linear-gradient(135deg,color-mix(in srgb,var(--c) 70%,#fff),var(--c))}
+.ph.empty::after{content:attr(data-k);position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-weight:900;color:#fff;font-size:28px;text-shadow:0 1px 3px rgba(0,0,0,.2)}
+
+/* region view */
+.rhead{display:flex;align-items:center;justify-content:center;gap:16px;padding:18px 12px;border-bottom:2px solid var(--pine)}
+.rhead h1{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(26px,7vw,38px);color:var(--pine);letter-spacing:.08em;text-wrap:balance;text-align:center}
+.rhead .ball{width:36px;height:36px;border-width:3.5px;color:var(--pine)}
+.rhead .ball::before{height:3.5px;margin-top:-1.75px}
+.rhead .ball::after{width:12px;height:12px;border-width:3.5px;background:var(--paper)}
+.prow{display:grid;grid-template-columns:minmax(72px,110px) 1fr;align-items:center;gap:8px;padding:12px 12px 12px 8px;border-bottom:2px solid color-mix(in srgb,var(--pine) 45%,transparent);width:100%;background:linear-gradient(90deg,var(--paper) 60%,var(--paper-2));border-left:0;border-right:0;border-top:0;text-align:left}
+.prow:last-child{border-bottom:0}
+.prow:hover{background:var(--paper-2)}
+.prow .pn{font-family:var(--display);font-weight:900;font-size:clamp(20px,5.2vw,28px);color:var(--pine);text-align:center;line-height:1.1}
+.prow.none .pn{color:var(--ink-3);opacity:.7}
+.prow .th{display:flex;align-items:center;gap:8px;min-width:0}
+.prow .th .ph{width:clamp(44px,11vw,64px);aspect-ratio:1;border-radius:50%;flex:none;border:3px solid var(--ink);box-shadow:0 0 0 2px var(--c) inset}
+.prow .more{font-weight:900;color:var(--pine);letter-spacing:.15em;align-self:flex-end;padding-bottom:4px}
+.prow .cnt{font-size:12px;color:var(--ink-3);white-space:nowrap}
+
+/* pref view */
+.phead{padding:18px 16px 14px;display:flex;flex-direction:column;gap:12px;border-bottom:2px solid var(--pine)}
+.phead-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.phead h1{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(28px,8vw,40px);color:var(--pine);letter-spacing:.06em;line-height:1.1}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;background:var(--pine-soft);color:var(--pine-deep)}
+.badge .sw{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.seg{display:inline-flex;background:var(--paper-2);border:1.5px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:none;border-radius:999px;padding:5px 14px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--pine);color:var(--on-pine)}
+.tools{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;padding:16px}
+.card{border:0;padding:0;text-align:left;background:var(--paper-2);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 0 1.5px var(--line) inset}
+.card .ph{aspect-ratio:4/3;width:100%}
+.card .body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px}
+.card .nm{font-weight:700;font-size:16px;line-height:1.35}
+.card .memo{font-size:13px;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--paper);border:1.5px solid var(--line);color:var(--ink-2)}
+.stamp{position:absolute;right:10px;top:10px;width:58px;height:58px;border-radius:50%;border:3px solid #C8402A;color:#C8402A;display:grid;place-items:center;font-family:var(--display);font-weight:900;font-size:13px;transform:rotate(-14deg);background:rgba(255,255,255,.82);letter-spacing:.05em}
+.empty-state{padding:36px 20px;text-align:center;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty-state .big{font-family:var(--display);font-weight:900;font-size:18px;color:var(--ink)}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(10,20,14,.5);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+@media (min-width:700px){.scrim{align-items:center}}
+.sheet{background:var(--paper);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
+@media (min-width:700px){.sheet{border-radius:22px}}
+.sheet h2{margin:0;font-family:var(--display);font-weight:900;font-size:21px;color:var(--pine-deep)}
+.sh-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.x{border:0;background:var(--paper-2);width:36px;height:36px;border-radius:50%;font-size:18px;color:var(--ink-2)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.flabel{font-size:13px;font-weight:700;color:var(--ink-2)}
+.field input[type=text],.field input[type=url],.field textarea,.field select{border:1.5px solid var(--line);background:var(--paper-2);border-radius:12px;padding:10px 12px;font-size:16px;width:100%}
+.field textarea{min-height:80px;resize:vertical}
+.drop{border:2px dashed var(--line);border-radius:16px;min-height:150px;display:grid;place-items:center;text-align:center;color:var(--ink-3);font-size:13px;position:relative;overflow:hidden;background:var(--paper-2)}
+.drop.over{border-color:var(--pine);background:var(--pine-soft)}
+.drop img{width:100%;max-height:260px;object-fit:cover;display:block}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop .hint{padding:18px;display:flex;flex-direction:column;gap:4px;align-items:center}
+.drop .hint b{font-size:15px;color:var(--pine)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.chip[aria-pressed="true"]{background:var(--pine);color:var(--on-pine);border-color:var(--pine)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row .grow{flex:1}
+.check{display:flex;align-items:center;gap:10px;font-weight:700}
+.check input{width:22px;height:22px;accent-color:#C8402A}
+.detail-ph{width:100%;aspect-ratio:4/3;border-radius:16px}
+.detail-meta{display:flex;flex-direction:column;gap:8px}
+.detail-meta .memo{white-space:pre-wrap;color:var(--ink-2)}
+.detail-meta a{color:var(--pine);font-weight:700;word-break:break-all}
+.maplink{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);background:var(--paper-2);border-radius:14px;padding:10px 12px;text-decoration:none;color:var(--ink)}
+.maplink .pin{flex:none;width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#E2462C;display:grid;place-items:center}
+.maplink .pin::after{content:"";width:12px;height:12px;border-radius:50%;background:#fff}
+.maplink .tx{display:flex;flex-direction:column;min-width:0}
+.maplink .tx b{color:var(--pine);font-size:14px}
+.maplink .tx span{font-size:13px;color:var(--ink-2);word-break:break-all}
+.card .addr{font-size:12px;color:var(--ink-3);display:flex;gap:4px}
+.card-wrap{position:relative;display:flex}
+.card-wrap .card{flex:1}
+.mapbtn{position:absolute;right:10px;bottom:10px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--paper);border:1.5px solid var(--line);color:var(--pine);text-decoration:none}
+.confirm{background:#FBE9E5;color:#7A2415;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:10px;font-size:14px}
+.note{font-size:12px;color:var(--ink-3)}
+.err{font-size:13px;color:#C8402A;font-weight:700}
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:60px;height:60px;border-radius:50%;border:0;background:var(--pine);color:var(--on-pine);font-size:32px;line-height:1;box-shadow:0 4px 0 var(--pine-deep),0 8px 24px rgba(0,0,0,.2);z-index:30}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 16px;border-radius:999px;font-size:13px;font-weight:700;z-index:60}
+.results{display:flex;flex-direction:column}
+.res{display:flex;gap:12px;align-items:center;padding:10px 14px;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;width:100%}
+.res .ph{width:48px;height:48px;border-radius:12px;flex:none}
+.res small{color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+.backup{display:flex;flex-direction:column;gap:10px;padding:16px}
+.backup h3{margin:0;font-family:var(--display);font-size:16px;color:var(--pine-deep)}
+.backup .row .btn{flex:1}
+.offline-pill{font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--pine-soft);color:var(--pine-deep)}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app" aria-live="polite"></div>
+<button class="fab" id="fab" aria-label="行きたい場所を追加">＋</button>
+<div id="layer"></div>
+
+<script>
+/* ---------- data ---------- */
+const REGIONS=[
+  {id:"hokkaido",name:"北海道・東北",c:"var(--r-hokkaido)"},
+  {id:"kanto",name:"関東",c:"var(--r-kanto)"},
+  {id:"chubu",name:"中部",c:"var(--r-chubu)"},
+  {id:"kinki",name:"近畿",c:"var(--r-kinki)"},
+  {id:"chushikoku",name:"中国・四国",c:"var(--r-chushikoku)"},
+  {id:"kyushu",name:"九州・沖縄",c:"var(--r-kyushu)"},
+];
+// [short, suffix, region, col, row, w, h]
+const PREFS=[
+ ["北海道","","hokkaido",12,0,2,2],
+ ["青森","県","hokkaido",12,2,2,1],["秋田","県","hokkaido",12,3],["岩手","県","hokkaido",13,3],
+ ["山形","県","hokkaido",12,4],["宮城","県","hokkaido",13,4],["福島","県","hokkaido",12,5,2,1],
+ ["茨城","県","kanto",13,6],["栃木","県","kanto",12,6],["群馬","県","kanto",11,6],["埼玉","県","kanto",12,7],
+ ["千葉","県","kanto",13,7,1,2],["東京","都","kanto",12,8],["神奈川","県","kanto",11,8],
+ ["新潟","県","chubu",11,5],["富山","県","chubu",10,5],["石川","県","chubu",9,5],["福井","県","chubu",8,5],
+ ["山梨","県","chubu",11,7],["長野","県","chubu",10,6,1,2],["岐阜","県","chubu",9,6],["静岡","県","chubu",9,8,2,1],["愛知","県","chubu",9,7],
+ ["滋賀","県","kinki",8,6],["京都","府","kinki",7,6],["大阪","府","kinki",7,7],
+ ["兵庫","県","kinki",6,6,1,2],["奈良","県","kinki",8,7],["和歌山","県","kinki",7,8],["三重","県","kinki",8,8],
+ ["鳥取","県","chushikoku",5,6],["島根","県","chushikoku",4,6],["岡山","県","chushikoku",5,7],["広島","県","chushikoku",4,7],["山口","県","chushikoku",3,7],
+ ["徳島","県","chushikoku",5,10],["香川","県","chushikoku",5,9],["愛媛","県","chushikoku",4,9],["高知","県","chushikoku",4,10],
+ ["福岡","県","kyushu",2,8],["佐賀","県","kyushu",1,8],["長崎","県","kyushu",0,9],["熊本","県","kyushu",1,9],
+ ["大分","県","kyushu",2,9],["宮崎","県","kyushu",2,10],["鹿児島","県","kyushu",1,10],["沖縄","県","kyushu",0,12],
+].map(([n,s,r,x,y,w=1,h=1])=>({n,full:n+s,r,x,y,w,h}));
+const LABELS=[ // region label placement on map grid
+  {r:"hokkaido",x:7,y:2,w:5},{r:"chubu",x:7,y:3,w:4},{r:"kanto",x:11,y:9,w:3},
+  {r:"kinki",x:6,y:10,w:4},{r:"chushikoku",x:2,y:5,w:5},{r:"kyushu",x:1,y:12,w:5},
+];
+const PRESET_TAGS=["春","夏","秋","冬","絶景","神社・寺","庭園","グルメ","温泉","予約制"];
+const regionOf=id=>REGIONS.find(r=>r.id===id);
+const prefOf=n=>PREFS.find(p=>p.n===n);
+const colorOf=n=>regionOf(prefOf(n)?.r||"kinki").c;
+
+const state={view:{name:"home"},spots:[],ready:false,mode:"loading",filter:"all",q:"",canWrite:true};
+/* ---------- storage: IndexedDB (この端末の中に保存) ---------- */
+const DB_NAME="ikitai-cho",STORE="spots";
+let idb=null;
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,1);
+  r.onupgradeneeded=()=>{r.result.createObjectStore(STORE,{keyPath:"id"});r.result.createObjectStore("meta")};
+  r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+function tx(store,mode,fn){return new Promise((res,rej)=>{const t=idb.transaction(store,mode);const out=fn(t.objectStore(store));
+  t.oncomplete=()=>res(out instanceof IDBRequest?out.result:undefined);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})}
+const getAll=()=>tx(STORE,"readonly",st=>st.getAll());
+const putSpot=s=>tx(STORE,"readwrite",st=>{st.put(s)});
+const delSpot=id=>tx(STORE,"readwrite",st=>{st.delete(id)});
+const getMeta=k=>tx("meta","readonly",st=>st.get(k));
+const setMeta=(k,v)=>tx("meta","readwrite",st=>{st.put(v,k)});
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const urlCache=new Map();
+function clearURL(id){const u=urlCache.get(id);if(u){URL.revokeObjectURL(u.url);urlCache.delete(id)}}
+async function saveSpot(s){
+  await putSpot(s);clearURL(s.id);
+  const i=state.spots.findIndex(x=>x.id===s.id);if(i>=0)state.spots[i]=s;else state.spots.push(s);
+  render();
+}
+async function removeSpot(s){
+  await delSpot(s.id);clearURL(s.id);state.spots=state.spots.filter(x=>x.id!==s.id);render();
+}
+function mapsURL(s){const p=prefOf(s.pref);const q=s.address?(s.name+' '+s.address):(s.name+' '+(p?p.full:''));return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q.trim())}
+function photoURL(s){
+  if(!s.photoBlob)return "";
+  const c=urlCache.get(s.id);if(c&&c.blob===s.photoBlob)return c.url;
+  if(c)URL.revokeObjectURL(c.url);
+  const url=URL.createObjectURL(s.photoBlob);urlCache.set(s.id,{blob:s.photoBlob,url});return url;
+}
+
+async function compress(file,max,q){
+  const url=URL.createObjectURL(file);
+  try{
+    const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});
+    const k=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+    const c=document.createElement("canvas");c.width=Math.round(img.naturalWidth*k);c.height=Math.round(img.naturalHeight*k);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    return await new Promise(res=>c.toBlob(b=>res(b),"image/jpeg",q));
+  }finally{URL.revokeObjectURL(url)}
+}
+const blobToData=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
+
+/* ---------- helpers ---------- */
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function phHTML(s,cls=""){
+  const u=photoURL(s);const c=colorOf(s.pref);
+  return u?`<div class="ph ${cls}" style="--c:${c};background-image:url('${esc(u)}')" role="img" aria-label="${esc(s.name)}"></div>`
+          :`<div class="ph empty ${cls}" style="--c:${c}" data-k="${esc((s.name||"？").slice(0,1))}"></div>`;
+}
+const byPref=n=>state.spots.filter(s=>s.pref===n).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200)}
+function go(v){state.view=v;render();window.scrollTo({top:0})}
+
+/* ---------- views ---------- */
+function render(){
+  const app=document.getElementById("app");const v=state.view;
+  document.getElementById("fab").hidden=!state.canWrite;
+  let html=topBar();
+  if(v.name==="home")html+=homeView();
+  else if(v.name==="region")html+=regionView(v.id);
+  else if(v.name==="pref")html+=prefView(v.pref);
+  app.innerHTML=html;
+  bind(app);
+}
+function topBar(){
+  const v=state.view;let crumbs="";
+  if(v.name==="region")crumbs=`<nav class="crumbs"><button data-go="home">日本地図</button><span>›</span><span>${esc(regionOf(v.id).name)}</span></nav>`;
+  if(v.name==="pref"){const p=prefOf(v.pref);crumbs=`<nav class="crumbs"><button data-go="home">日本地図</button><span>›</span><button data-go-region="${p.r}">${esc(regionOf(p.r).name)}</button><span>›</span><span>${esc(p.full)}</span></nav>`}
+  return `<header class="bar">
+    <button class="brand" data-go="home" aria-label="ホームへ"><span class="seal">行</span>いきたい帖</button>
+    <span class="sp"></span>
+    ${v.name!=="home"?`<button class="back" data-back>‹ もどる</button>`:""}
+  </header>${crumbs}`;
+}
+function homeView(){
+  const total=state.spots.length,done=state.spots.filter(s=>s.visited).length;
+  const prefsWith=new Set(state.spots.map(s=>s.pref)).size;
+  let cells="";
+  for(const p of PREFS){
+    const n=byPref(p.n).length;
+    cells+=`<button class="tile ${n?"has":""} ${p.h>1?"tall":""} ${p.w>1?"wide":""}" style="--c:${regionOf(p.r).c};grid-column:${p.x+1}/span ${p.w};grid-row:${p.y+1}/span ${p.h}" data-go-region="${p.r}" aria-label="${p.full}${n?"（"+n+"件）":""}" title="${p.full}">${n?`<span class="n">${n}</span>`:""}</button>`;
+  }
+  for(let y=0;y<13;y++)cells+=`<span class="cell" style="grid-column:1;grid-row:${y+1}"></span>`;
+  for(const l of LABELS){const r=regionOf(l.r);cells+=`<button class="rlabel" style="grid-column:${l.x+1}/span ${l.w};grid-row:${l.y+1}" data-go-region="${l.r}">${r.name}</button>`}
+  const recent=[...state.spots].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,10);
+  const q=state.q.trim();
+  const results=q?state.spots.filter(s=>(s.name+s.pref+(prefOf(s.pref)?.full||"")+(s.memo||"")+(s.address||"")+(s.tags||[]).join(" ")).includes(q)):[];
+  return `
+  <section class="panel framed">
+    <div class="hero dots">
+      <div class="hero-top">
+        <p class="prompt" style="margin:0">地域を選んでください</p>
+        <div class="stats">
+          <span class="stat">行きたい<b>${total-done}</b></span>
+          <span class="stat">行った<b>${done}</b></span>
+          <span class="stat">都道府県<b>${prefsWith}</b>/47</span>
+        </div>
+      </div>
+      <div class="map" role="group" aria-label="日本地図">${cells}</div>
+      <form class="search" id="searchForm" role="search">
+        <label for="q" hidden>場所を検索</label>
+        <input id="q" type="text" placeholder="場所名・県名・タグで探す" value="${esc(state.q)}" autocomplete="off">
+        <button class="btn" type="submit" aria-label="検索">検索</button>
+      </form>
+    </div>
+  </section>
+  ${q?`<section class="panel"><div class="results">${results.length?results.map(s=>`<button class="res" data-open="${s.id}">${phHTML(s)}<span><b>${esc(s.name)}</b><br><small>${esc(prefOf(s.pref)?.full)}${s.visited?"・行った":""}</small></span></button>`).join(""):`<div class="empty-state">「${esc(q)}」に当てはまる場所はまだありません</div>`}</div></section>`:""}
+  <div class="pill-head"><span><i class="ball"></i>最近追加した場所<i class="ball"></i></span></div>
+  ${recent.length?`<div class="strip">${recent.map(s=>`<button class="sc" data-open="${s.id}" style="--c:${colorOf(s.pref)}">${phHTML(s)}<span class="t">${esc(s.name)}</span><span class="p">${esc(prefOf(s.pref)?.full)}</span></button>`).join("")}</div>`
+   :`<div class="panel"><div class="empty-state">${state.mode==="loading"?"読み込み中…":`<span class="big">まだ何もありません</span>SNSで見つけた写真と一緒に、行きたい場所を保存しよう。${state.canWrite?`<button class="btn" data-add>＋ 最初の場所を追加</button>`:""}`}</div></div>`}
+  <section class="panel"><div class="backup">
+    <h3>データのバックアップ</h3>
+    <p class="note" style="margin:0">データと写真はこの端末の中だけに保存されています（ネットなしで使えます）。機種変更やアプリを消す前に、バックアップを書き出しておいてください。</p>
+    <div class="row"><button class="btn ghost" id="exportBtn">書き出す</button>
+      <label class="btn ghost" for="importFile" style="cursor:pointer">読み込む</label>
+      <input type="file" id="importFile" accept=".json,application/json" hidden></div>
+  </div></section>`;
+}
+function regionView(id){
+  const r=regionOf(id);const ps=PREFS.filter(p=>p.r===id);
+  const rows=ps.map(p=>{
+    const list=byPref(p.n);const show=list.slice(0,5);
+    return `<button class="prow ${list.length?"":"none"}" data-go-pref="${p.n}" aria-label="${p.full}（${list.length}件）">
+      <span class="pn">${p.n}</span>
+      <span class="th">${show.map(s=>phHTML(s)).join("")}${list.length>5?`<span class="more">…</span>`:""}${list.length?"":`<span class="cnt">まだ登録なし</span>`}</span>
+    </button>`}).join("");
+  return `<section class="panel" style="border:6px solid ${r.c}">
+    <div class="rhead"><i class="ball"></i><h1>${r.name}</h1><i class="ball"></i></div>
+    ${rows}
+  </section>`;
+}
+function prefView(n){
+  const p=prefOf(n);const r=regionOf(p.r);let list=byPref(n);
+  const done=list.filter(s=>s.visited).length;
+  if(state.filter==="want")list=list.filter(s=>!s.visited);
+  if(state.filter==="done")list=list.filter(s=>s.visited);
+  return `<section class="panel">
+    <div class="phead">
+      <div class="phead-top"><h1>${p.full}</h1><span class="badge"><span class="sw" style="--c:${r.c}"></span>${r.name}</span></div>
+      <div class="tools">
+        <div class="seg" role="group" aria-label="絞り込み">
+          <button data-filter="all" aria-pressed="${state.filter==="all"}">すべて ${byPref(n).length}</button>
+          <button data-filter="want" aria-pressed="${state.filter==="want"}">行きたい ${byPref(n).length-done}</button>
+          <button data-filter="done" aria-pressed="${state.filter==="done"}">行った ${done}</button>
+        </div>
+        ${state.canWrite?`<button class="btn" data-add="${n}">＋ 追加</button>`:""}
+      </div>
+    </div>
+    ${list.length?`<div class="cards">${list.map(s=>`<div class="card-wrap"><button class="card" data-open="${s.id}">
+        <div style="position:relative">${phHTML(s)}${s.visited?`<span class="stamp">行った</span>`:""}</div>
+        <div class="body"><span class="nm">${esc(s.name)}</span>${s.memo?`<span class="memo">${esc(s.memo)}</span>`:""}
+        ${(s.tags||[]).length?`<span class="tags">${s.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</span>`:""}
+        ${s.address?`<span class="addr">${esc(s.address)}</span>`:""}<span style="height:22px"></span></div>
+      </button><a class="mapbtn" href="${esc(mapsURL(s))}" target="_blank" rel="noopener">地図 ↗</a></div>`).join("")}</div>`
+    :`<div class="empty-state"><span class="big">${state.filter==="all"?p.full+"の行きたい場所はまだありません":"該当する場所はありません"}</span>${state.canWrite&&state.filter==="all"?`<button class="btn" data-add="${n}">＋ 写真と一緒に追加</button>`:""}</div>`}
+  </section>`;
+}
+
+/* ---------- sheets ---------- */
+function closeSheet(){document.getElementById("layer").innerHTML=""}
+function openSheet(html,onBind){
+  const layer=document.getElementById("layer");
+  layer.innerHTML=`<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;
+  const scrim=layer.querySelector("#scrim");
+  scrim.addEventListener("click",e=>{if(e.target===scrim)closeSheet()});
+  layer.querySelectorAll("[data-close]").forEach(b=>b.onclick=closeSheet);
+  onBind&&onBind(layer.querySelector(".sheet"));
+}
+function openDetail(id){
+  const s=state.spots.find(x=>x.id===id);if(!s)return;const p=prefOf(s.pref);
+  openSheet(`
+    <div class="sh-top"><h2>${esc(s.name)}</h2><button class="x" data-close aria-label="閉じる">✕</button></div>
+    <div style="position:relative">${phHTML(s,"detail-ph")}${s.visited?`<span class="stamp">行った</span>`:""}</div>
+    <div class="detail-meta">
+      <span class="badge" style="align-self:flex-start"><span class="sw" style="--c:${colorOf(s.pref)}"></span>${esc(p.full)}</span>
+      ${s.memo?`<div class="memo">${esc(s.memo)}</div>`:""}
+      ${(s.tags||[]).length?`<div class="tags">${s.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>`:""}
+      <a class="maplink" href="${esc(mapsURL(s))}" target="_blank" rel="noopener"><span class="pin"></span><span class="tx"><b>Googleマップで開く ↗</b><span>${esc(s.address||"住所未登録（名前と県名で検索します）")}</span></span></a>
+      ${s.link?`<a href="${esc(s.link)}" target="_blank" rel="noopener">元の投稿・参考リンクを開く ↗</a>`:""}
+    </div>
+    ${state.canWrite?`<div class="row">
+      <button class="btn ghost grow" id="tgl">${s.visited?"行きたいに戻す":"行った！にする"}</button>
+      <button class="btn grow" id="edit">編集</button>
+    </div>`:""}
+    <button class="btn ghost" data-close>閉じる</button>`,sh=>{
+      const t=sh.querySelector("#tgl");if(t)t.onclick=async()=>{t.disabled=true;try{await saveSpot({...s,visited:!s.visited});toast(s.visited?"行きたいに戻しました":"行った！スタンプを押しました");closeSheet()}catch(e){t.disabled=false;toast("保存できませんでした")}};
+      const e=sh.querySelector("#edit");if(e)e.onclick=()=>openEditor(s);
+    });
+}
+function openEditor(existing,defaultPref){
+  const s=existing?{...existing,tags:[...(existing.tags||[])]}:{id:uid(),name:"",pref:defaultPref||(state.view.name==="pref"?state.view.pref:""),memo:"",tags:[],link:"",visited:false,createdAt:Date.now()};
+  let newFile=null;
+  const opts=REGIONS.map(r=>`<optgroup label="${r.name}">${PREFS.filter(p=>p.r===r.id).map(p=>`<option value="${p.n}" ${p.n===s.pref?"selected":""}>${p.full}</option>`).join("")}</optgroup>`).join("");
+  const allTags=[...new Set([...PRESET_TAGS,...s.tags])];
+  const cur=photoURL(s);
+  openSheet(`
+    <div class="sh-top"><h2>${existing?"場所を編集":"行きたい場所を追加"}</h2><button class="x" data-close aria-label="閉じる">✕</button></div>
+    <div class="field"><span class="flabel">写真</span>
+      <div class="drop" id="drop">${cur?`<img src="${esc(cur)}" alt="">`:`<div class="hint"><b>写真を選ぶ</b>スクショやカメラロールから。ドロップもOK</div>`}
+        <input type="file" id="file" accept="image/*" aria-label="写真を選ぶ"></div></div>
+    <div class="field"><label for="f-name">場所の名前</label><input type="text" id="f-name" value="${esc(s.name)}" placeholder="例：嵐山 祐斎亭" required></div>
+    <div class="field"><label for="f-pref">都道府県</label><select id="f-pref"><option value="">選んでください</option>${opts}</select></div>
+    <div class="field"><label for="f-addr">住所（任意）</label><input type="text" id="f-addr" value="${esc(s.address||"")}" placeholder="例：京都府京都市右京区嵯峨亀ノ尾町6"><span class="note">空欄でも、名前と県名でGoogleマップ検索できます</span></div>
+    <div class="field"><label for="f-memo">メモ</label><textarea id="f-memo" placeholder="例：予約制。秋は混むけど一見の価値あり">${esc(s.memo)}</textarea></div>
+    <div class="field"><span class="flabel">タグ</span><div class="chips" id="chips">${allTags.map(t=>`<button type="button" class="chip" aria-pressed="${s.tags.includes(t)}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+      <input type="text" id="f-newtag" placeholder="タグを追加して Enter" style="margin-top:4px"></div>
+    <div class="field"><label for="f-link">元の投稿のリンク（任意）</label><input type="url" id="f-link" value="${esc(s.link)}" placeholder="https://x.com/…"></div>
+    <label class="check"><input type="checkbox" id="f-vis" ${s.visited?"checked":""}> もう行った</label>
+    <p class="err" id="err" hidden></p>
+    <div class="row"><button class="btn grow" id="save">${existing?"保存する":"追加する"}</button></div>
+    ${existing?`<button class="btn ghost" id="del">この場所を削除</button><div id="confirm" hidden class="confirm">「${esc(s.name)}」を削除します。写真も消え、元に戻せません。<div class="row"><button class="btn ghost grow" id="cancelDel">やめる</button><button class="btn danger grow" id="doDel">削除する</button></div></div>`:""}
+  `,sh=>{
+    const drop=sh.querySelector("#drop"),file=sh.querySelector("#file");
+    const setPreview=f=>{newFile=f;const u=URL.createObjectURL(f);drop.querySelector(".hint,img")?.remove();const im=document.createElement("img");im.src=u;im.alt="";drop.prepend(im)};
+    file.onchange=()=>{if(file.files[0])setPreview(file.files[0])};
+    drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("over")});
+    drop.addEventListener("dragleave",()=>drop.classList.remove("over"));
+    drop.addEventListener("drop",e=>{e.preventDefault();drop.classList.remove("over");const f=e.dataTransfer.files[0];if(f&&f.type.startsWith("image/"))setPreview(f)});
+    sh.addEventListener("paste",e=>{const it=[...(e.clipboardData?.items||[])].find(i=>i.type.startsWith("image/"));if(it)setPreview(it.getAsFile())});
+    const chips=sh.querySelector("#chips");
+    chips.onclick=e=>{const b=e.target.closest(".chip");if(b)b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true")};
+    sh.querySelector("#f-newtag").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();const v=e.target.value.trim();if(!v)return;
+      let b=[...chips.children].find(c=>c.dataset.t===v);if(!b){b=document.createElement("button");b.type="button";b.className="chip";b.dataset.t=v;b.textContent=v;chips.appendChild(b)}b.setAttribute("aria-pressed","true");e.target.value=""}});
+    const err=sh.querySelector("#err");
+    sh.querySelector("#save").onclick=async e=>{
+      const btn=e.currentTarget;
+      const name=sh.querySelector("#f-name").value.trim(),pref=sh.querySelector("#f-pref").value;
+      if(!name){err.textContent="場所の名前を入れてください";err.hidden=false;return}
+      if(!pref){err.textContent="都道府県を選んでください";err.hidden=false;return}
+      err.hidden=true;btn.disabled=true;btn.textContent="保存中…";
+      const next={...s,name,pref,memo:sh.querySelector("#f-memo").value.trim(),address:sh.querySelector("#f-addr").value.trim(),link:sh.querySelector("#f-link").value.trim(),
+        visited:sh.querySelector("#f-vis").checked,tags:[...chips.querySelectorAll('.chip[aria-pressed="true"]')].map(c=>c.dataset.t)};
+      try{
+        if(newFile){next.photoBlob=await compress(newFile,1600,.84)}
+        await saveSpot(next);
+        closeSheet();toast(existing?"保存しました":`${prefOf(pref).full}に追加しました`);
+        if(!existing&&state.view.name==="home"){}
+      }catch(x){
+        btn.disabled=false;btn.textContent=existing?"保存する":"追加する";
+        err.textContent=x?.code==="too_large"?"写真が大きすぎます。別の写真を選んでください":x?.code==="quota_or_state"||x?.code==="quota_exceeded"?"保存容量がいっぱいです。使わない場所を削除してください":"保存できませんでした。端末の空き容量を確認してもう一度お試しください";
+        err.hidden=false;
+      }
+    };
+    const del=sh.querySelector("#del");
+    if(del){const cf=sh.querySelector("#confirm");del.onclick=()=>{cf.hidden=false;del.hidden=true};
+      sh.querySelector("#cancelDel").onclick=()=>{cf.hidden=true;del.hidden=false};
+      sh.querySelector("#doDel").onclick=async()=>{try{await removeSpot(s);closeSheet();toast("削除しました")}catch(e){toast("削除できませんでした")}}}
+  });
+}
+
+/* ---------- events ---------- */
+function bind(root){
+  root.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go({name:"home"}));
+  root.querySelectorAll("[data-go-region]").forEach(b=>b.onclick=()=>go({name:"region",id:b.dataset.goRegion}));
+  root.querySelectorAll("[data-go-pref]").forEach(b=>b.onclick=()=>{state.filter="all";go({name:"pref",pref:b.dataset.goPref})});
+  root.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openDetail(b.dataset.open));
+  root.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>openEditor(null,b.dataset.add||""));
+  root.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{state.filter=b.dataset.filter;render()});
+  const back=root.querySelector("[data-back]");
+  if(back)back.onclick=()=>{const v=state.view;if(v.name==="pref")go({name:"region",id:prefOf(v.pref).r});else go({name:"home"})};
+  const ex=root.querySelector("#exportBtn");if(ex)ex.onclick=exportBackup;
+  const im=root.querySelector("#importFile");if(im)im.onchange=()=>{if(im.files[0])importBackup(im.files[0]);im.value=""};
+  const f=root.querySelector("#searchForm");
+  if(f){const inp=f.querySelector("#q");f.onsubmit=e=>{e.preventDefault();state.q=inp.value;render();document.getElementById("q")?.focus()};
+    inp.addEventListener("input",()=>{if(!inp.value&&state.q){state.q="";render();document.getElementById("q")?.focus()}})}
+}
+document.getElementById("fab").onclick=()=>openEditor(null);
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
+
+/* ---------- backup ---------- */
+async function exportBackup(){
+  try{
+    const spots=await Promise.all(state.spots.map(async s=>{const {photoBlob,...rest}=s;return {...rest,photo:photoBlob?await blobToData(photoBlob):null}}));
+    const blob=new Blob([JSON.stringify({app:"ikitai-cho",version:1,exportedAt:new Date().toISOString(),spots})],{type:"application/json"});
+    const name=`ikitai-cho-backup-${new Date().toISOString().slice(0,10)}.json`;
+    const file=new File([blob],name,{type:"application/json"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:"いきたい帖バックアップ"});return}catch(e){if(e.name==="AbortError")return}}
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast("バックアップを書き出しました");
+  }catch(e){toast("書き出せませんでした")}
+}
+async function importBackup(file){
+  try{
+    const data=JSON.parse(await file.text());
+    if(data.app!=="ikitai-cho"||!Array.isArray(data.spots))throw new Error("format");
+    let n=0;
+    for(const s of data.spots){
+      const {photo,...rest}=s;const rec={...rest};
+      if(photo){rec.photoBlob=await (await fetch(photo)).blob()}
+      await putSpot(rec);n++;
+    }
+    state.spots=await getAll();urlCache.forEach((v,k)=>clearURL(k));render();toast(`${n}件を読み込みました`);
+  }catch(e){toast("このファイルは読み込めませんでした")}
+}
+
+/* ---------- boot ---------- */
+async function seedIfFirst(){
+  if(await getMeta("seeded"))return;
+  const seeds=[
+    {id:"yusaitei",name:"嵐山 祐斎亭",pref:"京都",address:"京都府京都市右京区嵯峨亀ノ尾町6",memo:"額縁庭園。春は新緑、秋は紅葉で雰囲気がガラッと変わる。予約制。秋は大変混雑するけど一見の価値あり。",tags:["秋","春","庭園","絶景","予約制"],link:"",visited:false,createdAt:1790138400000,img:"seed/yusaitei.jpg"},
+    {id:"kashima",name:"鹿島神宮 御手洗池",pref:"茨城",address:"茨城県鹿嶋市宮中2306-1",memo:"透き通った池に鳥居と鯉。目に焼きつく絶景。",tags:["神社・寺","絶景"],link:"",visited:false,createdAt:1790138300000,img:"seed/kashima.jpg"},
+  ];
+  for(const {img,...s} of seeds){try{s.photoBlob=await (await fetch(img)).blob()}catch(e){}await putSpot(s)}
+  await setMeta("seeded",true);
+}
+render();
+(async()=>{
+  try{
+    idb=await openDB();
+    await seedIfFirst();
+    state.spots=await getAll();state.mode="local";state.ready=true;render();
+    if(navigator.storage&&navigator.storage.persist){try{await navigator.storage.persist()}catch(e){}}
+  }catch(e){state.mode="local";render();toast("この端末に保存領域を作れませんでした")}
+})();
+if("serviceWorker" in navigator&&location.protocol.startsWith("http")){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
